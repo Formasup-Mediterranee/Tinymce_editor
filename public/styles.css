@@ -1,0 +1,380 @@
+/* ============================================
+   Polyaéro Brand Styles
+   ============================================ */
+
+/* Import Roboto fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
+/* ============================================
+   CSS Custom Properties (Brand Colors)
+   ============================================ */
+:root {
+    /* Official Polyaéro Brand Colors */
+    --main: #009fe3;              /* Primary Cyan Blue - the blue of the star */
+    --secondary: #83d0f5;         /* Light Cyan - lighter accent */
+    --navy: #43358b;              /* Navy Blue - deep contrast */
+    --light-gray: #dadada;        /* Light Gray - backgrounds */
+    --black: #1d1d1b;             /* Black - use sparingly */
+    
+    /* Derived PHA Colors */
+    --pha-primary: var(--main);
+    --pha-accent: var(--secondary);
+    --pha-on-primary: #ffffff;
+    --pha-on-accent: #1a1a1a;
+    --pha-surface: #ffffff;
+    --pha-bg: #f7f7f7;
+    --pha-border: #d0d7de;
+    --pha-muted: rgba(0, 159, 227, 0.2);      /* 20% opacity of main */
+    --pha-shadow: rgba(0, 159, 227, 0.2);     /* 20% opacity of main */
+    --buttonshadow: rgba(0, 159, 227, 0.4);   /* 40% opacity of main */
+}
+
+/* ============================================
+   Global Styles
+   ============================================ */
+body {
+    background-color: var(--pha-bg);
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #1a1a1a;
+    margin: 0;
+    padding: 0;
+}
+
+/* ============================================
+   Layout Components
+   ============================================ */
+.pha-container {
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+    background: transparent;
+    max-width: 1200px;
+}
+
+.pha-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.pha-col {
+    flex: 1 1 320px;
+    padding: 1.25rem 1.5rem;
+    background: var(--pha-surface);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px var(--pha-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pha-col:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px var(--pha-shadow);
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+.pha-h1 {
+    color: var(--pha-primary);
+    font-weight: 700;
+    line-height: 1.25;
+    font-size: clamp(2rem, 2.5vw, 2.5rem);
+    margin: 0 0 0.5rem;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+.pha-h2 {
+    color: var(--pha-primary);
+    font-weight: 700;
+    line-height: 1.25;
+    font-size: clamp(1.6rem, 2vw, 2rem);
+    margin: 2rem 0 1rem;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+.pha-h3 {
+    color: var(--pha-primary);
+    font-weight: 700;
+    line-height: 1.25;
+    font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+    margin: 1.5rem 0 1rem;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+.pha-subtitle {
+    color: #576574;
+    margin-top: 0.25rem;
+    font-size: 1.1rem;
+}
+
+.pha-p {
+    margin: 0.75rem 0 1rem;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* ============================================
+   Tags, Badges & Emphasis
+   ============================================ */
+.pha-tag {
+    background: var(--navy);
+    color: #ecf0f1;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    display: inline-block;
+    transition: background 0.2s ease;
+}
+
+.pha-tag:hover {
+    background: var(--pha-primary);
+}
+
+.pha-badge {
+    background: var(--pha-accent);
+    color: var(--pha-on-accent);
+    padding: 0.2rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.pha-key {
+    color: var(--pha-primary);
+    font-weight: 700;
+}
+
+/* ============================================
+   Lists
+   ============================================ */
+.pha-list {
+    list-style: none;
+    margin: 1rem 0;
+    padding: 0;
+}
+
+.pha-list > li {
+    list-style: none;
+    position: relative;
+    margin: 0.35rem 0;
+    padding-left: 1.5rem;
+}
+
+.pha-list > li::before {
+    content: '•';
+    color: var(--main);
+    font-weight: 700;
+    position: absolute;
+    left: 0;
+    top: 0.15em;
+}
+
+/* Checklist */
+.pha-checklist {
+    list-style: none;
+    margin: 1rem 0;
+    padding: 0;
+}
+
+.pha-checklist > li {
+    list-style: none;
+    position: relative;
+    margin: 0.35rem 0;
+    padding-left: 1.5rem;
+}
+
+.pha-checklist > li::before {
+    content: '✔';
+    color: #27ae60;
+    font-weight: 700;
+    position: absolute;
+    left: 0;
+    top: 0.05em;
+}
+
+/* ============================================
+   Media
+   ============================================ */
+.pha-figure {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.pha-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--pha-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pha-figcaption {
+    font-size: 0.9rem;
+    color: #95a5a6;
+    margin-top: 0.75rem;
+    font-style: italic;
+}
+
+/* ============================================
+   Code Blocks
+   ============================================ */
+.pha-pre {
+    background: var(--navy);
+    color: #ecf0f1;
+    padding: 1.25rem 1.5rem;
+    border-radius: 8px;
+    overflow: auto;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Courier New', monospace;
+}
+
+.pha-pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+/* ============================================
+   Callouts & Cards
+   ============================================ */
+.pha-summary {
+    border-left: 6px solid var(--pha-accent);
+    background: rgba(131, 208, 245, 0.12);
+    padding: 1.25rem 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0 2rem;
+}
+
+.pha-objectives {
+    background: #f0f4f7;
+    border: 1px dashed var(--pha-border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin: 2rem 0;
+}
+
+.pha-note {
+    background: #e9f5ff;
+    border-left: 4px solid var(--secondary);
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    color: #2c3e50;
+    margin: 2rem 0;
+}
+
+.pha-cta {
+    border-left: 6px solid var(--pha-accent);
+    background: rgba(131, 208, 245, 0.12);
+    padding: 1.25rem 1.5rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+}
+
+/* ============================================
+   KPI Pills
+   ============================================ */
+.pha-kpi {
+    display: grid;
+    gap: 0.75rem;
+    margin: 1rem 0 2rem;
+}
+
+.pha-pill {
+    display: inline-block;
+    border: 1px solid var(--pha-border);
+    background: #fff;
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.pha-pill:hover {
+    border-color: var(--pha-primary);
+    box-shadow: 0 2px 6px var(--pha-shadow);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.pha-btn-lg {
+    width: 100%;
+    color: #fff;
+    background: var(--pha-primary);
+    border: 0;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 14px var(--buttonshadow);
+    transition: all 0.2s ease;
+    font-family: 'Roboto', sans-serif;
+}
+
+.pha-btn-lg:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px var(--buttonshadow);
+}
+
+.pha-btn-lg:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px var(--buttonshadow);
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+.pha-sr-only {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+@media print {
+    .pha-container {
+        padding: 0;
+    }
+    
+    .pha-row {
+        gap: 1rem;
+    }
+    
+    .pha-col {
+        box-shadow: none;
+        border: 1px solid var(--pha-border);
+    }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 768px) {
+    .pha-container {
+        padding: 2rem 1rem;
+    }
+    
+    .pha-row {
+        gap: 1rem;
+    }
+    
+    .pha-col {
+        flex: 1 1 100%;
+    }
+}

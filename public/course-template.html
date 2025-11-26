@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $json.output.course_name }}</title>
+
+    <!-- Link to Polyaéro styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--pha-bg);
+        }
+
+        .course-header {
+            background: var(--main);
+            color: white;
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .course-header h1 {
+            color: white;
+            margin: 0 0 0.75rem 0;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+        }
+
+        .course-meta {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0.25rem 0;
+        }
+
+        .section {
+            background: white;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--main);
+        }
+
+        .section h2 {
+            color: var(--main);
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+        }
+
+        .summary {
+            line-height: 1.7;
+            color: #333;
+        }
+
+        .objectives-list,
+        .skills-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .objectives-list li,
+        .skills-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #333;
+        }
+
+        .objectives-list li::before {
+            content: '•';
+            color: var(--main);
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+        }
+
+        .skills-list li::before {
+            content: '✓';
+            color: var(--secondary);
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            background: var(--navy);
+            color: white;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        @media print {
+            .course-header {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="course-header">
+        <div class="pha-container">
+            <h1>{{ $json.output.course_name }}</h1>
+
+            {{ $json.output["Teacher Name"] ? `<p class="course-meta">Enseignant : ${$json.output["Teacher Name"]}</p>`
+            : "" }}
+
+            {{ $json.output.school_year ? `<p class="course-meta">Année scolaire : ${$json.output.school_year}</p>` : ""
+            }}
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="pha-container">
+        <!-- Summary -->
+        <div class="section">
+            <h2>Résumé du cours</h2>
+            <div class="summary">
+                {{ $json.html }}
+            </div>
+        </div>
+
+        <!-- Objectives -->
+        {{ $json.output.objectives && $json.output.objectives.length > 0 ? `
+        <div class="section">
+            <h2>Objectifs du cours</h2>
+            <ul class="objectives-list">
+                ${$json.output.objectives.map(obj => `<li>${obj}</li>`).join("")}
+            </ul>
+        </div>
+        ` : "" }}
+
+        <!-- Skills -->
+        {{ $json.output.skills && $json.output.skills.length > 0 ? `
+        <div class="section">
+            <h2>Compétences visées</h2>
+            <ul class="skills-list">
+                ${$json.output.skills.map(skill => `<li>${skill}</li>`).join("")}
+            </ul>
+        </div>
+        ` : "" }}
+
+        <!-- Tags -->
+        {{ $json.output.tags && $json.output.tags.length > 0 ? `
+        <div class="section">
+            <h2>Mots-clés</h2>
+            <div class="tags">
+                ${$json.output.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}
+            </div>
+        </div>
+        ` : "" }}
+    </div>
+</body>
+
+</html>
