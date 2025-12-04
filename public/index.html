@@ -79,6 +79,20 @@
         .header-content {
             display: flex;
             align-items: center;
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .header-logo {
+            height: auto;
+            max-width: 80px;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-family: 'Roboto Condensed', sans-serif;
             font-weight: 700;
             font-size: 1.8rem;
             letter-spacing: 0.5px;
@@ -203,7 +217,7 @@
         /* ============================================
            6. Responsive
            ============================================ */
-        @media (max-width: 80px) {
+        @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
                 text-align: center;
@@ -238,7 +252,7 @@
                 onerror="this.onerror=null; this.src='https://placehold.co/200x80/white/009fe3?text=POLY+AERO';"
                 alt="Logo PolyAéro" class="header-logo">
             <div class="header-text">
-                <h1>Polyaero Hautes-Alpes</h1>
+                <h1>PolyStudio</h1>
                 <p>Plateforme d'édition de contenu pédagogique</p>
             </div>
         </div>
