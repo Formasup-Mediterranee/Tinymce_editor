@@ -316,7 +316,7 @@
             /* Components */
             .pha-note {
                 background: #e9f5ff;
-                border-left: 4px solid var(--main);
+                border-left: 44px solid var(--main);
                 padding: 1rem;
                 border-radius: 4px;
                 margin: 1rem 0;
@@ -350,6 +350,55 @@
                 border-radius: 3px;
                 color: var(--navy);
                 font-family: 'Courier New', monospace;
+            }
+
+            /* Images */
+            img, .pha-img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                border: 1px solid var(--pha-border);
+                margin: 1.5rem auto;
+                display: block;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+
+            /* Tables */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 1.5rem 0;
+                font-size: 0.95rem;
+            }
+            th {
+                background: var(--main);
+                color: #fff;
+                padding: 10px;
+                text-align: left;
+            }
+            td {
+                border: 1px solid var(--pha-border);
+                padding: 10px;
+            }
+            tr:nth-child(even) {
+                background-color: #f8fafc;
+            }
+
+            /* Divider */
+            .pha-divider {
+                border: 0;
+                height: 1px;
+                background: var(--pha-border);
+                margin: 3rem 0;
+            }
+
+            /* Code Blocks */
+            pre {
+                background: #111827;
+                color: #e5e7eb;
+                padding: 1rem;
+                border-radius: 8px;
+                overflow-x: auto;
             }
         `;
 
