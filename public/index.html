@@ -5,94 +5,410 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Éditeur de cours - PolyAéro</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- TinyMCE from CDN for immediate preview capability -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
 
-    <link rel="stylesheet" href="styles.css">
-    <script src="/tinymce/tinymce.min.js"></script>
+    <style>
+        /* ============================================
+           1. CSS Custom Properties (Brand Colors)
+           ============================================ */
+        :root {
+            /* Official Polyaéro Brand Colors */
+            --main: #009fe3;
+            /* Primary Cyan Blue */
+            --secondary: #83d0f5;
+            /* Light Cyan */
+            --navy: #43358b;
+            /* Navy Blue */
+            --light-gray: #dadada;
+            /* Light Gray */
+            --black: #1d1d1b;
+            /* Black */
+            --dark-text: #2c3e50;
+
+            /* Derived PHA Colors */
+            --pha-primary: var(--main);
+            --pha-accent: var(--secondary);
+            --pha-on-primary: #ffffff;
+            --pha-on-accent: #1a1a1a;
+            --pha-surface: #ffffff;
+            --pha-bg: #f0f2f5;
+            /* Slightly darker than pure white for contrast */
+            --pha-border: #d0d7de;
+            --pha-shadow: rgba(0, 0, 0, 0.08);
+            --buttonshadow: rgba(0, 159, 227, 0.3);
+        }
+
+        /* Import Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&family=Roboto:wght@300;400;500;700&display=swap');
+
+        /* ============================================
+           2. Global Reset & Body
+           ============================================ */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--pha-bg);
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================
+           3. Header Styling
+           ============================================ */
+        .editor-header {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--main) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .header-logo {
+            height: 60px;
+            width: auto;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .header-text p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* ============================================
+           4. Layout & Editor Wrapper
+           ============================================ */
+        .pha-container {
+            flex: 1;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .editor-wrapper {
+            background: var(--pha-surface);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid white;
+        }
+
+        .editor-toolbar-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--pha-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .editor-label {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: 700;
+            color: var(--navy);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* TinyMCE Override to make it flush */
+        .tox-tinymce {
+            border: none !important;
+            border-top: 1px solid var(--pha-border) !important;
+        }
+
+        /* ============================================
+           5. Loading Overlay (Glassmorphism)
+           ============================================ */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--light-gray);
+            border-top: 4px solid var(--main);
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+            /* Bouncy spin */
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-text {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 1.5rem;
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+        .loading-subtext {
+            color: var(--main);
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================
+           6. Responsive
+           ============================================ */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .header-logo {
+                height: 50px;
+            }
+
+            .pha-container {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
+
+    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <div class="loading-text">Génération en cours...</div>
         <div class="loading-subtext">L'IA analyse votre document et génère le contenu.</div>
     </div>
 
+    <!-- Header -->
     <header class="editor-header">
-        <div class="pha-container-fluid header-content">
-            <img src="LOGO-POLYAERO.png" alt="Logo PolyAéro" class="header-logo">
+        <div class="header-content">
+            <!-- Fallback for logo if image is missing -->
+            <img src="LOGO-POLYAERO.png"
+                onerror="this.onerror=null; this.src='https://placehold.co/200x80/white/009fe3?text=POLY+AERO';"
+                alt="Logo PolyAéro" class="header-logo">
             <div class="header-text">
-                <h1>Éditeur de cours Polyaero Hautes-Alpes</h1>
+                <h1>Polyaero Hautes-Alpes</h1>
+                <p>Plateforme d'édition de contenu pédagogique</p>
             </div>
         </div>
     </header>
 
-    <div class="pha-container-fluid">
+    <!-- Main Content -->
+    <div class="pha-container">
         <div class="editor-wrapper">
-            <label class="editor-label" for="editor">✏️ Éditeur de contenu</label>
-            <textarea id="editor"></textarea>
+            <div class="editor-toolbar-header">
+                <label class="editor-label" for="editor">
+                    <i class="fas fa-pen-nib"></i> Éditeur de contenu
+                </label>
+                <!-- Optional: Add save status or other toolbars here -->
+            </div>
+            <textarea id="editor">
+                <div class="pha-h2">Bienvenue sur l'éditeur PolyAéro</div>
+                <p class="pha-p">Commencez à éditer votre cours ou utilisez le bouton <strong>AI PDF</strong> pour importer du contenu.</p>
+                
+                <div class="pha-note">
+                    <strong>Note:</strong> Le style visuel de ce document respecte la charte graphique PolyAéro (Bleu Cyan & Navy).
+                </div>
+            </textarea>
         </div>
     </div>
 
     <script>
-        let phaStyles = '';
+        // ==========================================
+        // 1. Define Brand Styles for Internal Editor
+        // ==========================================
+        // We define this as a JS string so we can inject it into TinyMCE
+        // regardless of whether an external CSS file exists.
+        const phaBrandStyles = `
+            @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Roboto:wght@400;700&display=swap');
+            
+            :root {
+                --main: #009fe3;
+                --secondary: #83d0f5;
+                --navy: #43358b;
+                --light-gray: #dadada;
+                --black: #1d1d1b;
+                --pha-bg: #f7f7f7;
+                --pha-surface: #ffffff;
+                --pha-border: #d0d7de;
+            }
 
-        fetch('styles.css')
-            .then(response => response.text())
-            .then(css => {
-                phaStyles = css;
-                initializeTinyMCE();
-            })
-            .catch(err => {
-                console.error('Error loading styles.css:', err);
-                initializeTinyMCE();
-            });
+            body {
+                font-family: 'Roboto', sans-serif;
+                color: #1d1d1b;
+                line-height: 1.6;
+                margin: 1.5rem;
+                background: #fff;
+            }
+
+            /* Typography */
+            h1, .pha-h1 { color: var(--main); font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 2.2rem; margin-bottom: 0.5rem; }
+            h2, .pha-h2 { color: var(--navy); font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 1.8rem; margin-top: 1.5rem; border-bottom: 2px solid var(--secondary); padding-bottom: 0.5rem; }
+            h3, .pha-h3 { color: var(--main); font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 1.4rem; margin-top: 1.2rem; }
+            
+            p, .pha-p { margin-bottom: 1rem; }
+
+            /* Components */
+            .pha-note {
+                background: #e9f5ff;
+                border-left: 4px solid var(--main);
+                padding: 1rem;
+                border-radius: 4px;
+                margin: 1rem 0;
+                color: var(--navy);
+            }
+
+            .pha-checklist { list-style: none; padding: 0; }
+            .pha-checklist li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+            .pha-checklist li::before { content: '✔'; color: var(--main); position: absolute; left: 0; font-weight: bold; }
+
+            .pha-tag {
+                background: var(--navy);
+                color: white;
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-size: 0.85em;
+                display: inline-block;
+            }
+
+            blockquote {
+                border-left: 4px solid var(--secondary);
+                margin: 1rem 0;
+                padding-left: 1rem;
+                font-style: italic;
+                color: #555;
+            }
+            
+            code {
+                background: #f1f1f1;
+                padding: 2px 5px;
+                border-radius: 3px;
+                color: var(--navy);
+                font-family: 'Courier New', monospace;
+            }
+        `;
+
+        // ==========================================
+        // 2. Initialize Editor
+        // ==========================================
+        document.addEventListener("DOMContentLoaded", function () {
+            initializeTinyMCE();
+        });
 
         function initializeTinyMCE() {
             tinymce.init({
                 selector: '#editor',
-                height: 800,
+                height: '75vh', // Responsive height
                 menubar: 'file edit view insert format tools table help',
-                extended_valid_elements: 'span[class|style|data-atom-id]',
-                content_css: false,
-                content_style: phaStyles + `
-                    body {
-                        padding: 1.5rem;
-                        background: white;
-                    }
-                `,
-                plugins: 'print preview paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount help charmap quickbars emoticons',
-                toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | aipdf | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl | equation-editor ',
+
+                // IMPORTANT: Inject the brand styles directly
+                content_style: phaBrandStyles,
+
+                plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media table charmap pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount help quickbars emoticons',
+
+                toolbar: 'undo redo | fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | pagebreak | charmap emoticons | fullscreen preview print | insertfile image media link anchor codesample | aipdf',
+
                 toolbar_sticky: true,
                 autosave_ask_before_unload: true,
-                autosave_interval: '30s',
-                autosave_prefix: '{path}{query}-{id}-',
-                autosave_restore_when_empty: false,
-                autosave_retention: '2m',
                 image_advtab: true,
                 importcss_append: true,
-                image_caption: true,
-                quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
-                noneditable_noneditable_class: 'mceNonEditable',
-                toolbar_mode: 'sliding',
-                contextmenu: 'link image imagetools table',
-                external_plugins: {
-                    'equation-editor': '/equation-editor/plugin.min.js'
-                },
-                equation_editor_config: {
-                    url: '/equation-editor/editor/equation_editor.html',
-                    origin: window.location.origin,
-                    title: 'Éditeur d\'équations',
-                    space_after_content: '&nbsp;',
-                    btn_cancel_text: 'Annuler',
-                    btn_ok_text: 'Insérer',
-                    mathlive_config: {
-                        smartMode: true,
+
+                // Custom Polyaéro Formats
+                style_formats: [
+                    {
+                        title: 'Headers', items: [
+                            { title: 'Header 1', format: 'h1' },
+                            { title: 'Header 2', format: 'h2' },
+                            { title: 'Header 3', format: 'h3' }
+                        ]
                     },
-                },
+                    {
+                        title: 'Blocks', items: [
+                            { title: 'Note Box', block: 'div', classes: 'pha-note', wrapper: true },
+                            { title: 'Checklist', selector: 'ul', classes: 'pha-checklist' }
+                        ]
+                    },
+                    {
+                        title: 'Inline', items: [
+                            { title: 'Tag/Badge', inline: 'span', classes: 'pha-tag' }
+                        ]
+                    }
+                ],
+
                 setup: function (editor) {
                     editor.ui.registry.addButton('aipdf', {
                         text: 'AI PDF',
                         icon: 'upload',
+                        tooltip: 'Générer du contenu via IA',
                         onAction: function () {
                             openAIDialog(editor);
                         }
@@ -101,35 +417,46 @@
             });
         }
 
+        // ==========================================
+        // 3. AI Dialog Functionality
+        // ==========================================
         function openAIDialog(editor) {
             editor.windowManager.open({
-                title: 'Envoyer un fichier à l\'IA',
+                title: 'Polyaéro IA - Import Document',
                 body: {
                     type: 'panel',
                     items: [
                         {
                             type: 'htmlpanel',
-                            html: '<input type="file" id="fileInput" accept=".pdf,image/*" style="width: 100%; padding: 0.5rem; border: 2px solid #009fe3; border-radius: 6px;" />'
+                            html: `
+                                <div style="text-align: center; padding: 10px 0;">
+                                    <div style="border: 2px dashed #009fe3; border-radius: 8px; padding: 20px; background: #f0f8ff;">
+                                        <p style="margin-bottom: 10px; color: #43358b; font-weight: bold;">Sélectionner un fichier source</p>
+                                        <input type="file" id="fileInput" accept=".pdf,image/*" style="width: 100%;" />
+                                    </div>
+                                </div>
+                            `
                         },
                         {
                             type: 'textarea',
                             name: 'prompt',
-                            label: 'Prompt AI',
-                            placeholder: 'Décrivez ce que vous souhaitez générer à partir de ce fichier...'
+                            label: 'Instructions pour l\'IA',
+                            placeholder: 'Ex: Résume ce document en format cours avec des titres et une liste à puces...',
+                            height: 100
                         }
                     ]
                 },
                 buttons: [
                     { type: 'cancel', text: 'Annuler' },
-                    { type: 'submit', text: 'Envoyer', buttonType: 'primary' }
+                    { type: 'submit', text: 'Générer le contenu', buttonType: 'primary' }
                 ],
                 onSubmit: function (api) {
                     const data = api.getData();
                     const prompt = data.prompt;
                     const input = document.getElementById('fileInput');
 
-                    if (!input.files.length) {
-                        alert('Veuillez sélectionner un fichier PDF ou une image.');
+                    if (!input || !input.files.length) {
+                        editor.windowManager.alert('Veuillez sélectionner un fichier PDF ou une image.');
                         return;
                     }
 
@@ -138,10 +465,13 @@
                     formData.append('file', file);
                     formData.append('prompt', prompt);
 
+                    // Show Loading Overlay
                     const overlay = document.getElementById('loadingOverlay');
                     overlay.classList.add('active');
                     editor.setProgressState(true);
+                    api.close(); // Close dialog immediately so user sees the overlay
 
+                    // Call Webhook
                     fetch('http://54.38.224.140:5678/webhook/ai-pdf-1', {
                         method: 'POST',
                         body: formData
@@ -150,47 +480,30 @@
                         .then(responseText => {
                             let htmlContent = responseText;
 
-                            // Try to parse as JSON
                             try {
                                 const jsonResponse = JSON.parse(responseText);
+                                if (jsonResponse.html) htmlContent = jsonResponse.html;
+                                else if (jsonResponse.output?.html) htmlContent = jsonResponse.output.html;
+                                else if (jsonResponse.text) htmlContent = jsonResponse.text;
+                                else if (jsonResponse.output?.text) htmlContent = jsonResponse.output.text;
+                            } catch (e) { /* Not JSON */ }
 
-                                if (jsonResponse.html) {
-                                    htmlContent = jsonResponse.html;
-                                } else if (jsonResponse.output && jsonResponse.output.html) {
-                                    htmlContent = jsonResponse.output.html;
-                                } else if (jsonResponse.text) {
-                                    htmlContent = jsonResponse.text;
-                                } else if (jsonResponse.output && jsonResponse.output.text) {
-                                    htmlContent = jsonResponse.output.text;
-                                }
-                            } catch (e) {
-                                // Not JSON, use as-is
-                            }
-
-                            // Check if HTML is encoded and decode if needed
-                            if (htmlContent.includes('&lt;') || htmlContent.includes('&quot;') || htmlContent.includes('&amp;')) {
+                            // Basic cleaning
+                            if (htmlContent.includes('&lt;')) {
                                 const tempDiv = document.createElement('div');
                                 tempDiv.innerHTML = htmlContent;
-                                htmlContent = tempDiv.innerHTML;
-
-                                // Check again for double-encoding
-                                if (htmlContent.includes('&lt;') || htmlContent.includes('&quot;')) {
-                                    tempDiv.innerHTML = htmlContent;
-                                    htmlContent = tempDiv.innerHTML;
-                                }
+                                htmlContent = tempDiv.innerText;
                             }
 
-                            console.log('Inserting HTML:', htmlContent.substring(0, 200));
                             editor.insertContent(htmlContent);
-                            editor.setProgressState(false);
-                            overlay.classList.remove('active');
-                            api.close();
                         })
                         .catch(err => {
                             console.error('Erreur AI:', err);
+                            editor.windowManager.alert("Erreur de communication avec le serveur IA. Vérifiez votre connexion.");
+                        })
+                        .finally(() => {
                             editor.setProgressState(false);
                             overlay.classList.remove('active');
-                            alert("Erreur lors de l'envoi à l'IA.");
                         });
                 }
             });
