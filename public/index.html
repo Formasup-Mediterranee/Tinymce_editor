@@ -422,7 +422,7 @@
 
                 toolbar: [
                     'undo redo | fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor',
-                    'alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | pagebreak | charmap emoticons | fullscreen preview print | insertfile image media link anchor codesample | aipdf'
+                    'alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | pagebreak | charmap emoticons | fullscreen preview print | insertfile image media link anchor codesample | aipdf exportMoodle'
                 ],
 
                 toolbar_sticky: true,
@@ -464,6 +464,23 @@
                         tooltip: 'Générer du contenu via IA',
                         onAction: function () {
                             openAIDialog(editor);
+                        }
+                    });
+
+                    editor.ui.registry.addButton('exportMoodle', {
+                        text: 'Export Moodle',
+                        icon: 'export',
+                        tooltip: 'Copier le HTML pour Moodle (Images en Base64)',
+                        onAction: async function () {
+                            const html = await getHtmlWithBase64Images(editor);
+
+                            try {
+                                await navigator.clipboard.writeText(html);
+                                editor.windowManager.alert('HTML copié dans le presse-papier ! Vous pouvez le coller dans Moodle.');
+                            } catch (err) {
+                                console.error('Erreur presse-papier:', err);
+                                editor.windowManager.alert('Impossible de copier automatiquement. Veuillez copier le code ci-dessous :\n\n' + html);
+                            }
                         }
                     });
                 }
@@ -548,6 +565,11 @@
                                 htmlContent = tempDiv.innerText;
                             }
 
+                            // FIX: Remove double base64 prefix if present (n8n bug workaround)
+                            htmlContent = htmlContent.replace(/data:image\/[a-zA-Z]+;base64,data:image\/[a-zA-Z]+;base64,/g, (match) => {
+                                return match.split(',')[0] + ',';
+                            });
+
                             editor.insertContent(htmlContent);
                         })
                         .catch(err => {
@@ -560,6 +582,48 @@
                         });
                 }
             });
+        }
+    </script>
+    <script>
+        async function getHtmlWithBase64Images(editor) {
+            // Get current HTML from TinyMCE
+            const content = editor.getContent({ format: 'html' });
+
+            // Work on a detached DOM tree
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = content;
+
+            const imgs = wrapper.querySelectorAll('img');
+
+            const promises = Array.from(imgs).map(async (img) => {
+                const src = img.getAttribute('src');
+                if (!src) return;
+
+                // Only convert blob: or normal URLs (skip already-base64 images)
+                if (src.startsWith('data:')) return;
+
+                try {
+                    const response = await fetch(src);
+                    const blob = await response.blob();
+
+                    // Convert Blob to base64 data URL
+                    const dataUrl = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+
+                    img.setAttribute('src', dataUrl);
+                } catch (e) {
+                    console.error('Error converting image to base64:', src, e);
+                }
+            });
+
+            await Promise.all(promises);
+
+            // Return new HTML with base64 images
+            return wrapper.innerHTML;
         }
     </script>
 </body>
