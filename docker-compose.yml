@@ -8,3 +8,37 @@ services:
       - ./public:/usr/share/nginx/html:ro
     ports:
       - "8080:80"
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://54.38.224.140:5678
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - n8n-network
+
+  localtunel:
+    image: node:18-alpine
+    container_name: n8n-tunnel
+    working_dir: /app
+    command: sh -c "npm install -g localtunnel && lt --port 5678 --host http://54.38.224.140 --print-requests"
+    depends_on:
+      - n8n
+    networks:
+      - n8n-network
+    environment:
+      - LT_SUBDOMAIN=n8n-app
+
+volumes:
+  n8n_data:
+
+networks:
+  n8n-network:
+    driver: bridge
